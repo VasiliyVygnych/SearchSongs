@@ -6,48 +6,32 @@
 //
 
 import UIKit
-//import AVFoundation
 
 class MusicListNetwork: MusicListNetworkProtocol {
     
-// MARK: - request
-    func request(urlString: String, completion: @escaping (Result <Data, Error>) -> Void) {
-        guard let url = URL(string: urlString) else { return }
-        URLSession.shared.dataTask(with: url) { data, _, error in // response
-            DispatchQueue.main.async {
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                guard let data = data else { return }
-                completion(.success(data))
+    func request(searchText: String,
+                 completion: @escaping (SongData?) -> Void) {
+        var components = URLComponents(string: "https://itunes.apple.com/search?term=")
+        components?.queryItems = [URLQueryItem(name: "term",
+                                               value: searchText)]
+        guard let url = components?.url else { return }
+            let request = URLRequest(url: url)
+            let task = URLSession.shared.dataTask(with: request) { [weak self ]
+                (data, response, error) in
+                guard let _ = self,
+                      let data = data else { return }
+                guard let song = try?
+                        JSONDecoder().decode(SongData.self,
+                                             from: data) else { return }
+                let model = song
+                completion(model)
             }
-        }.resume()
-    }
-// MARK: - fetchData
-    func fetchData(urlString: String, completion: @escaping (SongData?) -> Void) {
-        self.request(urlString: urlString) { (result)  in
-            switch result {
-            case .success(let data):
-                do {
-                    let song = try JSONDecoder().decode(SongData.self, from: data)
-                    completion(song)
-//                    print("MODEL: \(song)")
-                } catch let jsonError {
-                    print("ERROR", jsonError)
-                    completion(nil)
-                }
-            case .failure(let error):
-                print("ERROR DATA \(error.localizedDescription)")
-                completion(nil)
-            }
-        }
+        task.resume()
     }
 // MARK: - searchResults
     func searchSong(searchText: String,
                     completion: @escaping (SongData?) -> Void) {
-        let urlString = "https://itunes.apple.com/search?term=\(searchText)"
-            self.fetchData(urlString: urlString) { (sougData) in
+        self.request(searchText: searchText) { (sougData) in
                 guard let sougData else { return }
                 completion(sougData)
         }
