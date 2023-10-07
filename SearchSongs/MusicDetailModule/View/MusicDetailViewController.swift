@@ -23,13 +23,6 @@ class MusicDetailViewController: UIViewController {
         image.backgroundColor = .black
     return image
     }()
-   private var volumePlus: UIImageView = {
-    let image = UIImageView()
-        image.translatesAutoresizingMaskIntoConstraints = false
-        image.tintColor = .lightGray
-        image.image = UIImage(systemName: "speaker.wave.3.fill")
-    return image
-    }()
 // MARK: - UILabel
     private  var titleLabel: UILabel = {
     let label = UILabel()
@@ -61,12 +54,6 @@ class MusicDetailViewController: UIViewController {
   }()
 // MARK: - UISlider
     private let progressBar: UISlider = {
-        let slider = UISlider()
-        slider.translatesAutoresizingMaskIntoConstraints = false
-        slider.minimumTrackTintColor = .lightGray
-        return slider
-    }()
-    private let volume: UISlider = {
         let slider = UISlider()
         slider.translatesAutoresizingMaskIntoConstraints = false
         slider.minimumTrackTintColor = .lightGray
@@ -116,9 +103,7 @@ class MusicDetailViewController: UIViewController {
         view.addSubview(playPauseButton)
         view.addSubview(nextButton)
         view.addSubview(previousButton)
-        view.addSubview(volume)
         view.addSubview(timeLabel)
-        view.addSubview(volumePlus)
     }
 // MARK: - setupeSlider
     private func setupeSlider() {
@@ -214,20 +199,6 @@ class MusicDetailViewController: UIViewController {
             nextButton.widthAnchor.constraint(equalToConstant: 60),
             nextButton.heightAnchor.constraint(equalToConstant: 40),
             nextButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -150)
-        ])
-        
-        NSLayoutConstraint.activate([
-            volume.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            volume.widthAnchor.constraint(equalToConstant: 280),
-            volume.heightAnchor.constraint(equalToConstant: 30),
-            volume.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -70)
-        ])
-        
-        NSLayoutConstraint.activate([
-            volumePlus.leftAnchor.constraint(equalTo: volume.rightAnchor, constant: 10),
-            volumePlus.widthAnchor.constraint(equalToConstant: 15),
-            volumePlus.heightAnchor.constraint(equalToConstant: 15),
-            volumePlus.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -75)
         ])
     }
 }
