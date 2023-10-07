@@ -139,7 +139,6 @@ class MusicDetailViewController: UIViewController {
             }
         }
     @objc func didNextTrack(sender: UIButton) {
-//        player.
         //
     }
     @objc func didPreviousTrack(sender: UIButton) {
@@ -211,11 +210,16 @@ extension MusicDetailViewController: MusicDetailViewProtocol {
                                  placeholderImage: UIImage(systemName: "magnifyingglass"))
         guard let urlSong = URL(string: song.previewUrl) else { return }
         player = AVPlayer(url: urlSong)
-        player?.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.5,
-                                                            preferredTimescale: 60),
+        player?.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.1,
+                                                            preferredTimescale: 1000),
                                         queue: DispatchQueue.main,
                                         using: { time in
-            self.timeLabel.text = String(time.seconds)
+            let formater = NumberFormatter()
+            formater.decimalSeparator = ":"
+            formater.maximumFractionDigits = 1
+            formater.minimumFractionDigits = 1
+            let formattedTimer = formater.string(from: NSNumber(value: time.seconds))
+            self.timeLabel.text = formattedTimer
             self.progressBar.value = Float(time.seconds)
             self.progressBar.maximumValue = Float(self.player?.currentItem?.duration.seconds ?? 0)
         })
