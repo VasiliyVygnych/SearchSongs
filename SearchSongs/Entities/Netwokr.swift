@@ -6,6 +6,7 @@
 //
 
 import UIKit
+//import AVFoundation
 
 class MusicListNetwork: MusicListNetworkProtocol {
     
@@ -29,8 +30,9 @@ class MusicListNetwork: MusicListNetworkProtocol {
             switch result {
             case .success(let data):
                 do {
-                    let soung = try JSONDecoder().decode(SongData.self, from: data)
-                    completion(soung)
+                    let song = try JSONDecoder().decode(SongData.self, from: data)
+                    completion(song)
+//                    print("MODEL: \(song)")
                 } catch let jsonError {
                     print("ERROR", jsonError)
                     completion(nil)

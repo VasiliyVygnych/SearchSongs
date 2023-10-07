@@ -43,9 +43,8 @@ protocol MusicListRouterProtocol: AnyObject {
     func presentToDoDetailScreen(from view: MusicListViewProtocol,
                                  for song: Results)
 }
-//MARK: - RouterProtocol
+//MARK: - NetworkProtocol
 protocol MusicListNetworkProtocol: AnyObject {
     func searchSong(searchText: String,
                     completion: @escaping (SongData?) -> Void)
-    
 }

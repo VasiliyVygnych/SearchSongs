@@ -81,11 +81,11 @@ extension MusicListViewController: UISearchResultsUpdating {
         guard let searchText = searchController.searchBar.text else { return }
         if searchText.count > 2 {
             timer?.invalidate()
+            activityIndicator.startAnimating()
             timer = Timer.scheduledTimer(withTimeInterval: 1.0,
                                          repeats: false,
                                          block: { (_) in
                 self.presenter?.getSearchText(text: searchText)
-                self.activityIndicator.startAnimating()
             })
         }
     }

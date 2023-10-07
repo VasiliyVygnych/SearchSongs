@@ -14,4 +14,6 @@ class MusicDetailInteractor: MusicDetailInteractorInputProtocol {
     
     var songItem: Results?
     
+    
+    
 }

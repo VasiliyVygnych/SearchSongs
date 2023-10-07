@@ -14,11 +14,12 @@ struct SongData: Codable {
 struct Results: Codable {
     let artistName: String
     let trackName: String
+    let previewUrl: String
     let artworkUrl30, artworkUrl60, artworkUrl100: String?
-
 }
 
 enum CodingKeys: String, CodingKey {
     case artistName, trackName
+    case previewUrl
     case artworkUrl30, artworkUrl60, artworkUrl100
 }

@@ -29,8 +29,6 @@ class MusicDetailRouter: MusicDetailRouterProtocol {
         presenter.interactor = interactor
         let router: MusicDetailRouterProtocol = MusicDetailRouter()
         presenter.router = router
-        
         return musikDetailVC
     }
-    
 }

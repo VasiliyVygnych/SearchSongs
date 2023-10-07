@@ -7,10 +7,12 @@
 
 import UIKit
 import SDWebImage
+import MediaPlayer
 
 class MusicDetailViewController: UIViewController {
     var presenter: MusicDetailPresenterProtocol?
-    
+    private var player: AVPlayer?
+
     var imagePreview: UIImageView = {
     let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
@@ -28,13 +30,6 @@ class MusicDetailViewController: UIViewController {
         image.image = UIImage(systemName: "speaker.wave.3.fill")
     return image
     }()
-    private var volumeMinus: UIImageView = {
-     let image = UIImageView()
-         image.translatesAutoresizingMaskIntoConstraints = false
-         image.tintColor = .lightGray
-         image.image = UIImage(systemName: "speaker.fill")
-     return image
-     }()
 // MARK: - UILabel
     private  var titleLabel: UILabel = {
     let label = UILabel()
@@ -62,16 +57,6 @@ class MusicDetailViewController: UIViewController {
         label.font = .systemFont(ofSize: 15,
                                        weight: .semibold)
         label.textColor = .lightGray
-        label.text = "00:00"
-    return label
-  }()
-    private  var decreasingTimeLabel: UILabel = {
-    let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15,
-                                       weight: .semibold)
-        label.textColor = .lightGray
-        label.text = "-00:00"
     return label
   }()
 // MARK: - UISlider
@@ -133,24 +118,17 @@ class MusicDetailViewController: UIViewController {
         view.addSubview(previousButton)
         view.addSubview(volume)
         view.addSubview(timeLabel)
-        view.addSubview(decreasingTimeLabel)
         view.addSubview(volumePlus)
-        view.addSubview(volumeMinus)
     }
 // MARK: - setupeSlider
     private func setupeSlider() {
         progressBar.addTarget(self,
                          action: #selector(playbackProgress),
                          for: .valueChanged)
-        volume.addTarget(self,
-                         action: #selector(didVolume),
-                         for: .touchUpInside)
     }
     @objc func playbackProgress(sender: UISlider) {
-        presenter?.didSelecPlaybackProgress(sender: sender)
-    }
-    @objc func didVolume(sender: UISlider) {
-        presenter?.didSelecoVolume(sender: sender)
+        player?.seek(to: CMTime(seconds: Double(progressBar.value), preferredTimescale: 1000))
+        self.timeLabel.text = String(progressBar.value)
     }
 // MARK: - setupePleerButton
     private func setupePleerButton() {
@@ -168,18 +146,19 @@ class MusicDetailViewController: UIViewController {
             if playPauseButton.currentBackgroundImage == UIImage(systemName: "play.fill") {
                 playPauseButton.setBackgroundImage(UIImage(systemName: "pause.fill"),
                                                    for: .normal)
-                presenter?.didSelecPlayButton()
+                    player?.play()
             } else {
                 playPauseButton.setBackgroundImage(UIImage(systemName: "play.fill"),
                                                    for: .normal)
-                presenter?.didSelecPauseButton()
+                    player?.pause()
             }
         }
     @objc func didNextTrack(sender: UIButton) {
-        presenter?.didSelecNextButton(sender: sender)
+//        player.
+        //
     }
     @objc func didPreviousTrack(sender: UIButton) {
-        presenter?.didSelecPreviousButton(sender: sender)
+        //
     }
 // MARK: - setupeConstraint
     private func setupeConstraint() {
@@ -211,16 +190,9 @@ class MusicDetailViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             timeLabel.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 40),
-            timeLabel.widthAnchor.constraint(equalToConstant: 60),
+            timeLabel.widthAnchor.constraint(equalToConstant: 100),
             timeLabel.heightAnchor.constraint(equalToConstant: 30),
             timeLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -230)
-        ])
-        
-        NSLayoutConstraint.activate([
-            decreasingTimeLabel.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -35),
-            decreasingTimeLabel.widthAnchor.constraint(equalToConstant: 60),
-            decreasingTimeLabel.heightAnchor.constraint(equalToConstant: 30),
-            decreasingTimeLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -230)
         ])
         
         NSLayoutConstraint.activate([
@@ -257,21 +229,24 @@ class MusicDetailViewController: UIViewController {
             volumePlus.heightAnchor.constraint(equalToConstant: 15),
             volumePlus.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -75)
         ])
-        
-        NSLayoutConstraint.activate([
-            volumeMinus.rightAnchor.constraint(equalTo: volume.leftAnchor, constant: -10),
-            volumeMinus.widthAnchor.constraint(equalToConstant: 15),
-            volumeMinus.heightAnchor.constraint(equalToConstant: 15),
-            volumeMinus.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -75)
-        ])
     }
 }
 extension MusicDetailViewController: MusicDetailViewProtocol {
     func showSong(song: Results) {
         titleLabel.text = song.artistName
         descriptionLabel.text = song.trackName
-        guard let url = URL(string: song.artworkUrl100 ?? "") else { return }
-        imagePreview.sd_setImage(with: url,
+        guard let urlImage = URL(string: song.artworkUrl100 ?? "") else { return }
+        imagePreview.sd_setImage(with: urlImage,
                                  placeholderImage: UIImage(systemName: "magnifyingglass"))
+        guard let urlSong = URL(string: song.previewUrl) else { return }
+        player = AVPlayer(url: urlSong)
+        player?.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.5,
+                                                            preferredTimescale: 60),
+                                        queue: DispatchQueue.main,
+                                        using: { time in
+            self.timeLabel.text = String(time.seconds)
+            self.progressBar.value = Float(time.seconds)
+            self.progressBar.maximumValue = Float(self.player?.currentItem?.duration.seconds ?? 0)
+        })
     }
 }
